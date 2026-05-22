@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: pylearn
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm --prefix backend ci --omit=dev && npm run build
+    startCommand: npm --prefix backend start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
