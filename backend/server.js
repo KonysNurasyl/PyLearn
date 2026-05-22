@@ -62,9 +62,15 @@ app.get('/api/levels', async (req, res) => {
 // Тапсырмалар тізімін алу (қосымша ?limit=&offset=)
 app.get('/api/problems', async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 100;
-    const offset = parseInt(req.query.offset) || 0;
-    const [rows] = await db.execute('SELECT id, title, description, difficulty, expected_output, template, test_cases FROM problems ORDER BY id LIMIT ? OFFSET ?', [limit, offset]);
+    const requestedLimit = Number(req.query.limit);
+    const requestedOffset = Number(req.query.offset);
+    const limit = Number.isInteger(requestedLimit) && requestedLimit > 0
+      ? Math.min(requestedLimit, 100)
+      : 100;
+    const offset = Number.isInteger(requestedOffset) && requestedOffset >= 0
+      ? requestedOffset
+      : 0;
+    const [rows] = await db.query(`SELECT id, title, description, difficulty, expected_output, template, test_cases FROM problems ORDER BY id LIMIT ${limit} OFFSET ${offset}`);
     // test_cases JSON-ды parse ету
     for (const row of rows) {
       if (row.test_cases && typeof row.test_cases === 'string') {
